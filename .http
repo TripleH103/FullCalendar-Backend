@@ -1,0 +1,143 @@
+@ulr = http://localhost:3020/api/staffs
+@url1=http://localhost:3020/api/staffs?name=Ling
+
+@url2=http://localhost:3020/api/staffs/6421ad107ce86a48b8b758bf
+
+@url3=http://localhost:3020/api/staffs/table?page=2&pageSize=3
+
+@url4= http://localhost:3020/api/users/signup
+
+@url5 = http://localhost:3020/api/users
+
+@url6 = http://localhost:3020/api/resources
+
+@url7 = http://localhost:3020/api/events
+
+@url8 = http://localhost:3020/api/tasks
+
+GET {{ulr}}
+###
+
+GET {{url1}} HTTP/1.1
+###
+
+POST {{ulr}} HTTP/1.1
+Content-Type:application/json
+
+{
+  "id": 7,
+  "name": "ChenYijun",
+  "post": "Tester"
+}
+###
+
+PATCH {{url2}}
+Content-Type:application/json
+
+{
+  "id": 8,
+  "name": "Tracy MacGrady",
+  "post": "Player"
+}
+###
+
+GET {{url3}}
+###
+
+GET {{url5}}
+###
+
+POST {{url4}} HTTP/1.1
+Content-Type:application/json
+
+{
+  "username": "Huhuiming",
+  "email": "",
+  "password": "lovexuming"
+}
+###
+
+POST {{url8}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "resources":[{
+    "title": "EX-King",
+    "pokemon":"",
+    "office": "iQue",
+    "eventColor": "red",
+    "manhour": null,
+    "children": [{
+      "title": "EX-King本篇翻译",
+      "pokemon": "凌雅韵",
+      "office": "iQue",
+      "eventColor": "green",
+      "manhour": 40
+    },
+    {
+      "title": "EX-King本篇测试",
+      "pokemon": "许铭",
+      "office": "iQue",
+      "eventColor": "green",
+      "manhour": 80
+    }]
+  }],
+  "events": [{
+    "title": "本篇翻译 具体未定",
+    "start": "2023-05-14",
+    "end": "2023-06-14"
+  },
+  {
+    "title": "本篇LQA",
+    "start": "2023-05-20",
+    "end": "2023-06-08"
+  }]
+}
+###
+
+POST {{url8}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "resources":[{
+    "title": "U-King文化检查",
+    "pokemon":"张泂",
+    "office": "DHSH",
+    "eventColor": "red",
+    "manhour": null,
+    "children": []
+  }],
+  "events": [{
+    "title": "U-King文化检查",
+    "start": "2023-05-18",
+    "end": "2023-06-28"
+  }]
+}
+###
+
+POST {{url8}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "resources":[{
+    "title": "Pumking系列",
+    "pokemon":"胡慧明",
+    "office": "DHSH",
+    "eventColor": "blue",
+    "manhour": null,
+    "children": [{
+      "title": "PumkingS LQA",
+      "pokemon": "陈屹君",
+      "office": "iQue",
+      "eventColor": "blue",
+      "manhour": 50
+    }]
+  }],
+  "events": [{
+    "title": "临时安排陈屹君来负责PumkingS LQA",
+    "start": "2023-05-18",
+    "end": "2023-06-28"
+  }]
+}
+###
+GET {{url8}}
