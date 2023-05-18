@@ -5,8 +5,6 @@ import createHttpError, { isHttpError } from "http-errors";
 import cors from 'cors';
 import staffRouters from "./routes/routes";
 import userRouters from './routes/userRoutes';
-import resourceRouters from './routes/resourceRoutes';
-import eventRouters from './routes/eventRoutes';
 import taskRouters from './routes/taskRoutes';
 
 const app = express();

@@ -4,13 +4,15 @@ type taskTypes = {
   resources:[{
     _id:string;
     id:string;
-    title: string;
+    title:string;
+    office:string;
     pokemon:string;
     eventColor:string;
     manhour:number;
     children:[{
       id:string
       title:string;
+      office: string;
       pokemon:string;
       eventColor:string;
       manhour:number;
@@ -53,6 +55,15 @@ const tasksSchema = new Schema ({
     }]
 })
 
+const officeColors: { [key: string]: string } = {
+  'iQue': '#198754',
+  'PTWSH': '#dc3545',
+  'DHSH': '#0a2cf0',
+  'DHJ': '#43eef7',
+  'SHIFT': '#c456f0',
+  'TPC': '#f29544'
+};
+
 tasksSchema.pre<taskTypes & InferSchemaType<typeof tasksSchema>>('save', async function(next) {
      this.resources.forEach(resource => {
       if (resource.children && resource.children.length > 0) {
@@ -76,6 +87,16 @@ tasksSchema.pre<taskTypes & InferSchemaType<typeof tasksSchema>>('save', async f
     this.events.forEach(event => {
       event.id = event._id?.toString();
     });
+
+    this.resources.forEach(resource => {
+      if (resource.children && resource.children.length > 0) {
+        resource.children.forEach(child => {
+          child.eventColor = officeColors[child.office];
+        });
+      } else {
+        resource.eventColor = officeColors[resource.office];
+      }
+    })
      next();
   });
 

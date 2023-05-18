@@ -141,3 +141,42 @@ Content-Type: application/json
 }
 ###
 GET {{url8}}
+###
+
+POST {{url8}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "resources":[{
+    "title": "测试颜色系列",
+    "pokemon":"许铭",
+    "office": "iQue",
+    "eventColor": "",
+    "manhour": null,
+    "children": [{
+      "title": "测试颜色系列",
+      "pokemon": "凌雅韵",
+      "office": "TPC",
+      "eventColor": "",
+      "manhour": 50
+    },
+    {
+      "title": "测试颜色2系列",
+      "pokemon": "殷悦",
+      "office": "PTWSH",
+      "eventColor": "",
+      "manhour": 50
+    }]
+  }],
+  "events": [{
+    "title": "api自动生成颜色的测试",
+    "start": "2023-05-20",
+    "end": "2023-06-28"
+  },
+  {
+    "title": "api自动生成颜色的测试",
+    "start": "2023-04-20",
+    "end": "2023-08-28"
+  }]
+}
+
