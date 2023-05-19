@@ -58,7 +58,7 @@ const tasksSchema = new Schema ({
 const officeColors: { [key: string]: string } = {
   'iQue': '#198754',
   'PTWSH': '#dc3545',
-  'DHSH': '#0a2cf0',
+  'DHS': '#0a2cf0',
   'DHJ': '#43eef7',
   'SHIFT': '#c456f0',
   'TPC': '#f29544'

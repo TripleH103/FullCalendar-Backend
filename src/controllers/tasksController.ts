@@ -30,11 +30,10 @@ interface TasksBody {
 
 export const createTasks : RequestHandler<unknown,unknown,TasksBody,unknown> = async (req, res, next) => {
     try {
-         
         const body = req.body as TasksBody;
         const newTask = new TaskModel(body);
         await newTask.save();
-        
+        res.status(201).json({ message: "POST Created Successfully" });
     } catch (error) {
         next (error)
     }
