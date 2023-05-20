@@ -13,7 +13,7 @@
 
 @url7 = http://localhost:3020/api/events
 
-@url8 = http://localhost:3020/api/tasks
+@url8 = http://localhost:3020/api/tasks/find?resources.pokemon=许铭
 
 @url9 = http://localhost:3020/api/tasks/new-task
 
