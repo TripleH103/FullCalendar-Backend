@@ -6,5 +6,6 @@ const router = express.Router();
 router.get("/find", taskController.getFilterTasks);
 router.get("/", taskController.getTasks);
 router.post("/new-task", taskController.createTasks);
+router.patch("/list", taskController.updateTask);
 
 export default router;

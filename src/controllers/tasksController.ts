@@ -51,6 +51,43 @@ export const getTasks: RequestHandler = async (req, res, next) => {
     }
 };
 
+export const updateTask: RequestHandler = async (req, res, next) => {
+    try {
+      const eventResource = req.query['events.resourceId'];
+      if (!eventResource) {
+        throw createHttpError(404, "There is no events.resourceId");
+      }
+      const filter = {
+        $or: [
+          { "resources.id": eventResource },
+          { "resources.children.id": eventResource }
+        ]
+      };
+      const update = {
+        // 更新内容
+        $set: {
+          // 根据需要更新 events 和 resources 中的字段
+          "events.$[event].title": req.body.title,
+          "resources.$[resource].title": req.body.title,
+          "resources.$[resource].children.$[child].title": req.body.title,
+        }
+      };
+      const options = {
+        new: true, // 返回更新后的文档
+        arrayFilters: [
+          { "event.resourceId": eventResource },
+          { "resource.id": eventResource },
+          { "child.id": eventResource }
+        ]
+      };
+      const updatedTask = await TaskModel.findOneAndUpdate(filter, update, options);
+      res.json(updatedTask);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+
 interface filterParams {
     'resources.office'?:string;
     'resources.pokemon'?:string
