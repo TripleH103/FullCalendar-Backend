@@ -4,34 +4,35 @@ import { ObjectId } from "mongoose";
 import TaskModel from "../models/tasks";
 
 
-interface TasksBody {
-    resources: [{
-        _id: {type: ObjectId},
-        title: { type: String },
-        pokemon: { type: String },
-        eventColor: { type: String },
-        manhour: { type: Number },
-        children: [{    
-            _id: {type: ObjectId},
-            title: { type: String },
-            pokemon: { type: String },
-            eventColor: { type: String },
-            manhour: { type: Number },
-          }]
-      }],
-    events:[{
-        _id: {type: ObjectId},
-        resourceId: { type: String },
-        start: { type: Date },
-        end: { type: Date},
-        title: { type: String},
-    }]
+interface newTaskBody {
+  resources: [{
+      title?: string;
+      pokemon?: [string];
+      office?: string;
+      eventColor?: string;
+      manhour?: number;
+      progress?:number;
+      status?:string
+      children: [{    
+          title?: string;
+          pokemon?: [string];
+          office?: string;
+          eventColor?: string;
+          manhour?: number;
+          progress?:number;
+          status?:string
+        }]
+    }],
+  events:[{
+      start?: Date;
+      end?: Date;
+      title?: string;
+  }]
 }
 
-export const createTasks : RequestHandler<unknown,unknown,TasksBody,unknown> = async (req, res, next) => {
+export const createTask : RequestHandler<unknown,unknown,newTaskBody,unknown> = async (req, res, next) => {
     try {
-        const body = req.body as TasksBody;
-        const newTask = new TaskModel(body);
+        const newTask = new TaskModel(req.body);
         await newTask.save();
         res.status(201).json({ message: "POST Created Successfully" });
     } catch (error) {
@@ -51,41 +52,76 @@ export const getTasks: RequestHandler = async (req, res, next) => {
     }
 };
 
-export const updateTask: RequestHandler = async (req, res, next) => {
-    try {
-      const eventResource = req.query['events.resourceId'];
-      if (!eventResource) {
-        throw createHttpError(404, "There is no events.resourceId");
-      }
-      const filter = {
-        $or: [
-          { "resources.id": eventResource },
-          { "resources.children.id": eventResource }
-        ]
-      };
-      const update = {
-        // 更新内容
-        $set: {
-          // 根据需要更新 events 和 resources 中的字段
-          "events.$[event].title": req.body.title,
-          "resources.$[resource].title": req.body.title,
-          "resources.$[resource].children.$[child].title": req.body.title,
-        }
-      };
-      const options = {
-        new: true, // 返回更新后的文档
-        arrayFilters: [
-          { "event.resourceId": eventResource },
-          { "resource.id": eventResource },
-          { "child.id": eventResource }
-        ]
-      };
-      const updatedTask = await TaskModel.findOneAndUpdate(filter, update, options);
-      res.json(updatedTask);
-    } catch (error) {
-      next(error);
+
+interface queryParams {
+  'events.resourceId':string;
+}
+
+interface Child {
+id: string;
+title: string;
+pokemon: string[];
+office: string;
+manhour: number;
+progress: number;
+status: string;
+}
+
+interface Resource {
+id: string;
+title: string;
+pokemon: string[];
+office: string;
+manhour: number;
+progress: number;
+status: string;
+children:Child[];
+}
+
+interface Event {
+id: string;
+title: string;
+start: Date;
+end: Date;
+resourceId:string;
+}
+
+interface updateTaskBody {
+resources: Resource[];
+events: Event[];
+}
+export const updateTask: RequestHandler<unknown,unknown,updateTaskBody,queryParams> = async (req, res, next) => {
+  try {
+    const eventResource = req.query['events.resourceId'];
+    if (!eventResource) {
+      throw createHttpError(404, "There is no events.resourceId");
     }
+    const filter = {
+      $or: [
+        { "resources.id": eventResource },
+        { "resources.children.id": eventResource }
+      ]
+    };
+    const task = await TaskModel.findOne(filter);
+    if (task) {
+      // Update resources
+      if (req.body.resources) {
+        task.resources = req.body.resources;
+      }
+      // Update events
+      if (req.body.events) {
+        task.events = req.body.events;
+      }
+
+      await task.save();
+      res.json(task);
+    } else {
+      throw createHttpError(404, "No task found for your selection!");
+    }
+  } catch (error) {
+    next(error);
   }
+};
 
 
 interface filterParams {
