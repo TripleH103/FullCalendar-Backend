@@ -9,9 +9,7 @@
 
 @url5 = http://localhost:3020/api/users
 
-@url6 = http://localhost:3020/api/resources
-
-@url7 = http://localhost:3020/api/events
+@url6 = http://localhost:3020/api/tasks
 
 @url8 = http://localhost:3020/api/tasks/find?resources.pokemon=许铭
 
@@ -19,6 +17,7 @@
 
 @url10 = http://localhost:3020/api/tasks/list?events.resourceId=646642e1790281f104a3da87
 
+@url11 = http://localhost:3020/api/tasks/add/newChild?resources.id=647374ea0e43c47823a44df6
 GET {{ulr}}
 ###
 
@@ -48,7 +47,7 @@ Content-Type:application/json
 GET {{url3}}
 ###
 
-GET {{url5}}
+GET {{url6}}
 ###
 
 POST {{url4}} HTTP/1.1
@@ -186,3 +185,25 @@ Content-Type: application/json
 ###
 
 PATCH  {{url10}}
+###
+
+POST {{url11}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "resources":[{
+    "children":[{
+      "title": "GogoS_LQA",
+      "pokemon": ["胡慧明"],
+      "office":"PTWSH",
+      "manhour": 35,
+      "progress": 0.98,
+      "status": "In-Progress"
+    }]
+  }],
+  "events": [{
+    "title": "PTW上海测试 胡慧明监修",
+    "start": "2023-04-17",
+    "end": "2023-06-02"
+  }]
+}

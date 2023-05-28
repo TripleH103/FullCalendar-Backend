@@ -73,13 +73,13 @@ const officeColors: { [key: string]: string } = {
 };
 
 tasksSchema.pre<taskTypes & InferSchemaType<typeof tasksSchema>>('save', async function(next) {
-     this.resources.forEach(resource => {
-      if (resource.children && resource.children.length > 0) {
-        resource.children.forEach((child, index) => {
-          if (this.events[index]) {
-            this.events[index].resourceId = child._id?.toString()
-          }
-        });
+  this.resources.forEach(resource => {
+    if (resource.children && resource.children.length > 0) {
+      resource.children.forEach((child, index) => {
+        if (this.events[index]) {
+          this.events[index].resourceId = child._id?.toString()
+        }
+      });
       } else {
         this.events.forEach(event => {
           event.resourceId = resource._id?.toString();
