@@ -30,6 +30,7 @@ type taskTypes = {
     start:Date;
     end:Date;
     title:string;
+    progress:number; 
   }]
 }
 
@@ -60,6 +61,7 @@ const tasksSchema = new Schema ({
         start: { type: Date },
         end: { type: Date},
         title: { type: String},
+        progress: { type: Number}
     }]
 })
 
@@ -104,7 +106,17 @@ tasksSchema.pre<taskTypes & InferSchemaType<typeof tasksSchema>>('save', async f
       } else {
         resource.eventColor = officeColors[resource.office];
       }
-    })
+    });
+
+    this.resources.forEach(resource => {
+      if (resource.children && resource.children.length > 0) {
+        resource.children.forEach((child,index) => {
+          if (this.events[index]) {
+            this.events[index].progress = child.progress * 100;
+          }
+        })
+      }
+    });
      next();
   });
 
