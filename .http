@@ -18,6 +18,9 @@
 @url10 = http://localhost:3020/api/tasks/list?events.resourceId=646642e1790281f104a3da87
 
 @url11 = http://localhost:3020/api/tasks/add/newChild?resources.id=647374ea0e43c47823a44df6
+
+@url13 = http://localhost:3020/api/tasks?resources.children.pokemon=许铭&limit=3
+
 GET {{ulr}}
 ###
 
@@ -207,3 +210,6 @@ Content-Type: application/json
     "end": "2023-06-02"
   }]
 }
+###
+
+GET {{url13}}

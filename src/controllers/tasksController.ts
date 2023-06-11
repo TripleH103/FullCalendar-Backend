@@ -1,6 +1,5 @@
 import { RequestHandler } from "express";
 import createHttpError from "http-errors";
-import { ObjectId, Document } from "mongoose";
 import TaskModel from "../models/tasks";
 
 interface newTaskBody {
@@ -101,6 +100,7 @@ export const createChildTask: RequestHandler = async (req, res, next) => {
 
     const task = await TaskModel.findOne(filter).exec();
     if (task) {
+
       if(newChild) {
         task.resources[0].children = task.resources[0].children.concat(newChild);
       }
@@ -120,7 +120,12 @@ export const createChildTask: RequestHandler = async (req, res, next) => {
 
 export const getTasks: RequestHandler = async (req, res, next) => {
   try {
-    const tasks = await TaskModel.find().exec();
+    const queryObj = {...req.query};
+    const excludedFields = ['page', 'sort','limit'];
+    excludedFields.forEach(item => delete queryObj[item]);
+    console.log(req.query, queryObj)
+
+    const tasks = await TaskModel.find(queryObj);
     if (!tasks) {
       throw createHttpError(404, "there is no fucking tasks in the DB");
     }
@@ -162,6 +167,7 @@ interface updateEvent {
   start: Date;
   end: Date;
   resourceId: string;
+  progress:number;
 }
 
 interface updateSelectedTaskBody {
