@@ -21,6 +21,8 @@
 
 @url13 = http://localhost:3020/api/tasks?resources.children.pokemon=许铭&limit=3
 
+@url14 = http://localhost:3020/api/tasks/delete?events.resourceId=64746a80c8b1be9d241ddd4d
+
 GET {{ulr}}
 ###
 
@@ -213,3 +215,6 @@ Content-Type: application/json
 ###
 
 GET {{url13}}
+###
+
+DELETE {{url14}}

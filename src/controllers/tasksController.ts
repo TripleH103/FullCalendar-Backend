@@ -49,83 +49,51 @@ export const createTask: RequestHandler<
   }
 };
 
-// interface newChildQueryParams {
-//   "resources.id": string;
-// }
-
-// interface newChild {
-//   title?: string;
-//   pokemon?: string[];
-//   office?: string;
-//   manhour?: number;
-//   progress?: number;
-//   status?: string;
-// }
-// interface ChildResource {
-//   id?: string;
-//   title?: string;
-//   pokemon?: string[];
-//   office?: string;
-//   eventColor?: string;
-//   manhour?: number;
-//   progress?: number;
-//   status?: string;
-//   children?: Array<newChild>;
-// }
-// interface newChildEvent {
-//   start: Date;
-//   end: Date;
-//   title: string;
-// }
-
-// interface newChildDocument {
-//   resources: Array<ChildResource>;
-//   events: newChildEvent;
-// }
-
-
 export const createChildTask: RequestHandler = async (req, res, next) => {
   try {
     const addChild = req.query["resources.id"];
     if (!addChild) {
-      throw createHttpError( 404, "resources.id is invaild or no such resoureces")
+      throw createHttpError(
+        404,
+        "resources.id is invaild or no such resoureces"
+      );
     }
     const filter = {
-      $or:[
-        {"resources.id": addChild}
-      ]
-    }
-    const newChild = req.body.resources[0].children
-    const newEvent = req.body.events
+      $or: [{ "resources.id": addChild }],
+    };
+    const newChild = req.body.resources[0].children;
+    const newEvent = req.body.events;
 
     const task = await TaskModel.findOne(filter).exec();
     if (task) {
-
-      if(newChild) {
-        task.resources[0].children = task.resources[0].children.concat(newChild);
+      if (newChild) {
+        task.resources[0].children =
+          task.resources[0].children.concat(newChild);
       }
-      if(newEvent) {
-        task.events = task.events.concat(newEvent)
+      if (newEvent) {
+        task.events = task.events.concat(newEvent);
       }
       await task.save();
-      res.status(200).json(task)
-    }
-    else {
-      throw createHttpError(404, "Task not found")
+      res.status(200).json(task);
+    } else {
+      throw createHttpError(404, "Task not found");
     }
   } catch (error) {
-    next (error)
+    next(error);
   }
-}
+};
 
 export const getTasks: RequestHandler = async (req, res, next) => {
   try {
-    const queryObj = {...req.query};
-    const excludedFields = ['page', 'sort','limit'];
-    excludedFields.forEach(item => delete queryObj[item]);
-    console.log(req.query, queryObj)
+    const queryObj = { ...req.query };
+    const excludedFields = ["page", "sort", "limit"];
+    excludedFields.forEach((item) => delete queryObj[item]);
+    console.log(req.query, queryObj);
 
-    const tasks = await TaskModel.find(queryObj);
+    const query = TaskModel.find(queryObj);
+
+    const tasks = await query;
+
     if (!tasks) {
       throw createHttpError(404, "there is no fucking tasks in the DB");
     }
@@ -134,7 +102,6 @@ export const getTasks: RequestHandler = async (req, res, next) => {
     next(error);
   }
 };
-
 
 interface updateEventQueryParams {
   "events.resourceId": string;
@@ -167,7 +134,7 @@ interface updateEvent {
   start: Date;
   end: Date;
   resourceId: string;
-  progress:number;
+  progress: number;
 }
 
 interface updateSelectedTaskBody {
@@ -195,9 +162,9 @@ export const updateSelectedTask: RequestHandler<
     if (task) {
       // Update resources
       if (req.body.resources) {
-        req.body.resources.forEach(updateResource => {
+        req.body.resources.forEach((updateResource) => {
           const resource = task.resources.find(
-            resource => resource.id === updateResource.id
+            (resource) => resource.id === updateResource.id
           );
           if (resource) {
             // Update resource properties
@@ -210,9 +177,9 @@ export const updateSelectedTask: RequestHandler<
 
             // Update children
             if (updateResource.children) {
-              updateResource.children.forEach(updateChild => {
+              updateResource.children.forEach((updateChild) => {
                 const child = resource.children.find(
-                  child => child.id === updateChild.id
+                  (child) => child.id === updateChild.id
                 );
                 if (child && child.id === eventResource) {
                   // Update child properties
@@ -231,8 +198,10 @@ export const updateSelectedTask: RequestHandler<
 
       // Update events
       if (req.body.events) {
-        req.body.events.forEach(updateEvent => {
-          const event = task.events.find(event => event.resourceId === updateEvent.resourceId);
+        req.body.events.forEach((updateEvent) => {
+          const event = task.events.find(
+            (event) => event.resourceId === updateEvent.resourceId
+          );
           if (event && event.resourceId === eventResource) {
             // Update event properties
             event.title = updateEvent.title;
@@ -251,8 +220,95 @@ export const updateSelectedTask: RequestHandler<
   }
 };
 
+interface eventParams {
+  "events.resourceId": string;
+}
 
+interface Child {
+  id: string;
+  title: string;
+  pokemon: string[];
+  office: string;
+  manhour: number;
+  progress: number;
+  status: string;
+}
 
+interface pullResource {
+  id: string;
+  title: string;
+  pokemon: string[];
+  office: string;
+  manhour: number;
+  progress: number;
+  status: string;
+  children: Child[];
+}
+
+interface pullEvent {
+  id: string;
+  title: string;
+  start: Date;
+  end: Date;
+  resourceId: string;
+  progress: number;
+}
+
+interface pullSelectedTaskBody {
+  resources: pullResource[];
+  events: pullEvent[];
+}
+
+export const deleteSelectedTask: RequestHandler<
+  unknown,
+  unknown,
+  pullSelectedTaskBody,
+  eventParams
+> = async (req, res, next) => {
+  try {
+    const eventResource = req.query["events.resourceId"];
+    if (!eventResource) {
+      throw createHttpError(404, "There is no events.resourceId");
+    }
+    const filter = {
+      $or: [
+        { "resources.id": eventResource },
+        { "resources.children.id": eventResource },
+      ],
+    };
+    const task = await TaskModel.findOne(filter);
+    if (task) {
+      task.resources.forEach((resource) => {
+        if (resource.children && resource.children.length > 0) {
+          resource.children.forEach((child) => {
+            if (child.id === eventResource) {
+              TaskModel.updateOne(
+                { _id: task._id },
+                { $pull: { "resource.children": { id: eventResource } } }
+              );
+            }
+          });
+        } else if (resource.id === eventResource) {
+          TaskModel.updateOne(
+            { _id: task._id },
+            { $pull: { resources: { id: eventResource } } }
+          );
+        }
+      });
+      task.events.forEach((event) => {
+        if (event.resourceId === eventResource) {
+          TaskModel.updateOne(
+            { _id: task._id },
+            { $pull: { events: { resourceId: eventResource } } }
+          );
+        }
+      });
+    }
+    res.status(204).json();
+  } catch (error) {
+    next(error);
+  }
+};
 
 interface filterParams {
   "resources.office"?: string;
