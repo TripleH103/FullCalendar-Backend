@@ -83,15 +83,56 @@ export const createChildTask: RequestHandler = async (req, res, next) => {
   }
 };
 
-export const getTasks: RequestHandler = async (req, res, next) => {
+
+// class APIFeatures {
+//   query: any;
+//   queryString: any;
+
+//   constructor(query:any, queryString: any) {
+//     this.query = query;
+//     this.queryString = queryString;
+//   }
+
+//   filter() {
+//     const queryObj = {...this.queryString};
+//     const excludedFields = ["page","sort","limit","fields"];
+//     excludedFields.forEach((el) => delete queryObj[el]);
+
+//     let queryStr = JSON.stringify(queryObj);
+//     queryStr = queryStr.replace(/\b(gte|gt|let|lt)\b/g, match => `$${match}`)
+
+//   }
+// }
+
+export const getAllTasks: RequestHandler<unknown,unknown,unknown,any> = async (req, res, next) => {
   try {
+    console.log(req.query);
+    // Bulid Query
+    // 1A) Filtering
     const queryObj = { ...req.query };
-    const excludedFields = ["page", "sort", "limit"];
+    const excludedFields = ["page", "sort", "limit","field"];
     excludedFields.forEach((item) => delete queryObj[item]);
-    console.log(req.query, queryObj);
+    
+    // 1B) Advanced Filtering
+    let queryStr = JSON.stringify(queryObj)
+    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
 
-    const query = TaskModel.find(queryObj);
+    let query = TaskModel.find(JSON.parse(queryStr));
 
+    // 2) Sorting
+    if(req.query.sort) {
+      const sortBy = req.query.sort.split(',').join(' ')
+      query = query.sort(sortBy)
+    }
+
+    // 3) Pagination
+    const page = req.query.page * 1 || 1;
+    const limit = req.query.limit * 1 || 10;
+    const skip = (page - 1) * limit;
+
+    query = query.skip(skip).limit(limit);
+
+    // EXECUTE QUERY
     const tasks = await query;
 
     if (!tasks) {

@@ -6,6 +6,7 @@ import cors from 'cors';
 import staffRouters from "./routes/routes";
 import userRouters from './routes/userRoutes';
 import taskRouters from './routes/taskRoutes';
+import memoryRouters from './routes/memoryRoutes';
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use(cors())
 app.use("/api/users", userRouters);
 app.use("/api/staffs", staffRouters);
 app.use("/api/tasks", taskRouters);
+app.use("api/memories", memoryRouters);
 
 app.use((req,res,next) => { 
     next(createHttpError(404,"Endpoint not found"));
